@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source env/bin/activate
+python3 app.py $1
+if [ $? -eq 1 ]
+then
+    sudo service tor restart
+    sleep 5
+    proxychains4 python3 app.py $1
+    deactivate
+else
+    python3 app.py $1
+fi
