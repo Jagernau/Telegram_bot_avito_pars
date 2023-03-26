@@ -1,41 +1,7 @@
 from bs4 import BeautifulSoup
-import subprocess
 import telebot
 import datetime
-from filters import filter_from_non_text, filter_from_time, filter_price
-import lxml
-
-def kil_and_run_tor(url):
-    to = subprocess.run(["pidof", "tor"], text=True, capture_output=True)
-    val = ["kill", str(to.stdout).strip()]
-    subprocess.Popen(val)
-    subprocess.run(["sv", "stop", "tor"])
-    subprocess.Popen("tor")
-    page = subprocess.run(["proxychains4", "curl", f"{url}"], text=True, capture_output=True)
-
-    bs_page = BeautifulSoup(str(page), "lxml")
-    bloks = get_bloks_of_page(bs_page)
-    for i in bloks:
-        
-        #фильтр по времени
-        if not filter_from_time(i):
-            continue
-        if not filter_price(i):
-            continue
-        if not filter_from_non_text(i):
-            continue
-        
-        datas = get_general_data(i)
-        href = f"https://www.avito.ru{str(next(datas))}"
-        title = str(next(datas))
-        
-        if write_log_links(href) == False:
-            continue
-
-        text = f"\nСсылка:  {href}\nОписание:  {title}\n"
-
-        send_message(text)
-
+from config import TELEGRAM_TOKEN_BOT, USER_CHAT_ID
 
 
 def get_bloks_of_page(bs_page: BeautifulSoup):
@@ -50,16 +16,27 @@ def get_general_data(bs_one_block):
     yield one["title"]
 
 
-def send_message(txt: str):
-    token = '00'
-    bot =telebot.TeleBot(token)
-    chat = 00
-    bot.send_message(chat,txt)
+def send_message(txt: str) -> None:
+    """ 
+    Функция для отправки сообщения в Telegram бота
+    """
+    bot = telebot.TeleBot(str(TELEGRAM_TOKEN_BOT))
+    bot.send_message(str(USER_CHAT_ID),txt)
 
 
-def write_log_links(url_link):
-    with open("links.txt") as f:
-        text = f.read()
+def check_write_links(url_link: str) -> bool:
+    """
+    Функция логгер, создаёт файл linx.txt в директорию 
+    от куда было запущено приложение, и записывает в файл время и ссылку на
+    подходящий товар по параметраметрам.
+    """
+    #можно усовершенствовать, создать БД либо SQlite и записывать в неё
+    #ещё надо разобраться с местом появления файла или бд, что бы 
+    #создавалось только в корневой папке, а не в месте от куда запускается приложение
+    #было бы здорово интегрироваться с googlesheets
+
+    with open("links.txt") as file:
+        text = file.read()
 
     links = str(text).split("\n")
 

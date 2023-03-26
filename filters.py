@@ -1,17 +1,22 @@
-
 from bs4 import BeautifulSoup
 from non_except import exceptions_time, exceptions_descipt
 import re
+from config import HIGHEST_PRICE, LOWER_PRICE
 
-def filter_from_time(bs_block: BeautifulSoup):
-    time = bs_block.find_all("div", class_="date-text-KmWDf")[0].contents[0]
-    t = time.split(" ")[1]
-    if t in exceptions_time:
+def filter_from_time(bs_block: BeautifulSoup) -> bool:
+    """
+    Функция проверяет есть ли в блоке товара недопустимыое время, возвращает 
+    True, если нет недопустимого слова.
+    """
+    date_from_poduct = bs_block.find_all("div", class_="date-text-KmWDf")[0].contents[0]
+    date = date_from_poduct.split(" ")[1]
+    if date in exceptions_time:
         return False
     else:
         return True
 
-def filter_from_non_text(bs_block: BeautifulSoup):
+
+def filter_from_non_text(bs_block: BeautifulSoup) -> bool:
     all_text = str(bs_block)
     for y in exceptions_descipt:
         compi = re.compile(rf".{y}.").match(all_text)
@@ -21,13 +26,16 @@ def filter_from_non_text(bs_block: BeautifulSoup):
             return True
 
 
-def filter_price(bs_block: BeautifulSoup):
-    """Фильтрует цену в блоке"""
-    one = bs_block.find_all("span", class_="price-price-JP7qe")[0].contents[1]["content"]
+def filter_price(bs_block: BeautifulSoup) -> bool:
+    """
+    Функция фильтрует цену, если цена продукта
+    находится между LOWER_PRICE и HIGHEST_PRICE, возвращает True
+    """
+    price = bs_block.find_all("span", class_="price-price-JP7qe")[0].contents[1]["content"]
     
-    if int(one) > 150000:
+    if int(price) > HIGHEST_PRICE:
         return False
-    if int(one) < 80000:
+    if int(price) < LOWER_PRICE:
         return False
 
     else:
