@@ -2,26 +2,30 @@ from bs4 import BeautifulSoup
 import telebot
 import datetime
 from config import TELEGRAM_TOKEN_BOT, USER_CHAT_ID
+from typing import List
+
+def get_blocks_of_page(bs_page: BeautifulSoup) -> List[BeautifulSoup]:
+    """
+    Принимает страницу формата BeautifulSoup и разбивает на блоки товаров,
+    Вазвращает список блоков.
+    """
+    blocks = bs_page.find_all("div", class_= "iva-item-content-rejJg")
+    return blocks
 
 
-def get_bloks_of_page(bs_page: BeautifulSoup):
-    bloks = bs_page.find_all("div", class_= "iva-item-content-rejJg")
-    return bloks
+# def get_general_data(bs_one_block):
+#     """Возвращает 1-Ссылку, 2-Название"""
+#     one = bs_one_block.find_all("a", class_="iva-item-sliderLink-uLz1v")[0]
+#     yield one["href"]
+#     yield one["title"]
 
 
-def get_general_data(bs_one_block):
-    """Возвращает 1-Ссылку, 2-Название"""
-    one = bs_one_block.find_all("a", class_="iva-item-sliderLink-uLz1v")[0]
-    yield one["href"]
-    yield one["title"]
-
-
-def send_message(txt: str) -> None:
+def send_message(text: str) -> None:
     """ 
     Функция для отправки сообщения в Telegram бота
     """
     bot = telebot.TeleBot(str(TELEGRAM_TOKEN_BOT))
-    bot.send_message(str(USER_CHAT_ID),txt)
+    bot.send_message(str(USER_CHAT_ID),text)
 
 
 def check_write_links(url_link: str) -> bool:
