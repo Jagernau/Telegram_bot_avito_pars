@@ -1,9 +1,9 @@
 from bs4 import BeautifulSoup
 import telebot
 import datetime
-from config import TELEGRAM_TOKEN_BOT, USER_CHAT_ID
+from config import TELEGRAM_TOKEN_BOT, USER_CHAT_ID, BASE_DIR
 from typing import List
-
+import os
 def get_blocks_of_page(bs_page: BeautifulSoup) -> List[BeautifulSoup]:
     """
     Принимает страницу формата BeautifulSoup и разбивает на блоки товаров,
@@ -38,8 +38,13 @@ def check_write_links(url_link: str) -> bool:
     #ещё надо разобраться с местом появления файла или бд, что бы 
     #создавалось только в корневой папке, а не в месте от куда запускается приложение
     #было бы здорово интегрироваться с googlesheets
+    filename = 'links.txt'
+    filepath = os.path.join(BASE_DIR, filename)
+    if not os.path.isfile(filepath):
+        with open(filepath, "w") as file:
+            file.write(" ")
 
-    with open("links.txt") as file:
+    with open(filepath) as file:
         text = file.read()
 
     links = str(text).split("\n")
@@ -50,11 +55,11 @@ def check_write_links(url_link: str) -> bool:
         return False
 
     else:
-        with open("links.txt", "a") as z:
+        with open(filepath, "a") as z:
             z.write(f"{dat}\n")
 
 
-        with open("links.txt", "a") as t:
+        with open(filepath, "a") as t:
             t.write(f"{url_link}\n")
         return True
 
