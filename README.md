@@ -12,8 +12,8 @@ Python>=3.8; Beautifulsoup4
 3. Сохраняет ссылки с датой и временем в файл links.txt;
 4. Проверяет что бы ссылки не повторялись, при каждом разе анализа товаров Авито, и по этому присылаются только появившиеся товары.
 ## Запуск и использование:
-1. Склонируйте репозиторий: `git clone https://github.com/Jagernau/hard_pars_avito.gi`
-2. Зайдите в папку с приложением: `cd hard_pars_avito`
+1. Склонируйте репозиторий: `git clone https://github.com/Jagernau/Telegram_bot_avito_pars`
+2. Зайдите в папку с приложением: `cd Telegram_bot_avito_pars`
 3. Лучше всего создайте песочницу для Python:
 	- Если фанаты virtualenv: `python<версия> -m virtualenv env`
 	- Активировать виртуальное окружение: `source env/bin/activate`
