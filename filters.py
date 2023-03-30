@@ -16,15 +16,15 @@ def filter_from_time(bs_block: BeautifulSoup) -> bool:
         return True
 
 
-def filter_from_non_text(bs_block: BeautifulSoup) -> bool:
-    all_text = str(bs_block)
-    for y in exceptions_descipt:
-        compi = re.compile(rf".{y}.").match(all_text)
-        if compi:
-            return False
-        else:
-            return True
-
+# def filter_from_non_text(bs_block: BeautifulSoup) -> bool:
+#     all_text = str(bs_block)
+#     for y in exceptions_descipt:
+#         compi = re.compile(rf".{y}.").match(all_text)
+#         if compi:
+#             return False
+#         else:
+#             return True
+#
 
 def filter_price(bs_block: BeautifulSoup) -> bool:
     """
@@ -33,9 +33,9 @@ def filter_price(bs_block: BeautifulSoup) -> bool:
     """
     price = bs_block.find_all("span", class_="price-price-JP7qe")[0].contents[1]["content"]
     
-    if int(price) > HIGHEST_PRICE:
+    if int(price) > int(HIGHEST_PRICE):
         return False
-    if int(price) < LOWER_PRICE:
+    if int(price) < int(LOWER_PRICE):
         return False
 
     else:
