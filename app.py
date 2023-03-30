@@ -1,54 +1,53 @@
 from bs4 import BeautifulSoup
 from requests import get, ConnectionError, ConnectTimeout, Timeout, HTTPError
-import lxml
-from utils import get_bloks_of_page, send_message,  write_log_links
+from utils import get_blocks_of_page, send_message,  check_write_links
 from filters import filter_from_time, filter_price
 import time
 import random
 import argparse
+from config import SITY
 
-
-parser = argparse.ArgumentParser(description="Name of car")
+parser = argparse.ArgumentParser(description="Name of product")
 parser.add_argument("name", type=str)
 arg = parser.parse_args()
-car = arg.name
-ur = f"https://www.avito.ru/nizhniy_novgorod?q={car}"
+product = arg.name
+ur = f"https://www.avito.ru/{SITY}?q={product}"
 
 for i in range(1, random.randint(10,19)):
     time.sleep(random.randint(2, 7))
-    url = str(ur + f"&p={i}")
-
+    url = str(ur + f"&p={i}") # проход по пагинации,
+                              # i- номер страницы, на странице
+                              # 10 товаров.
     try:
-        resp = get(url)
-        assert resp.status_code == 200, AssertionError
+        response = get(url) #GET запрос requests
+        assert response.status_code == 200, AssertionError
     except(ConnectionError, ConnectTimeout, Timeout, HTTPError):
         raise SystemExit(1)
     except AssertionError:
         raise SystemExit(1)
     else:
-        page = resp.content.decode("utf-8")
-        bs_page = BeautifulSoup(str(page), "lxml")
-        bloks = get_bloks_of_page(bs_page)
-        for i in bloks:
+        page = response.content.decode("utf-8") #Переводит русские символы
+        #Форматирует страницу в формат BeautifulSoup
+        bs_page = BeautifulSoup(str(page), "html.parser")
+        #Разбивает страницу на блоки- товары, как list
+        products_blocks = get_blocks_of_page(bs_page)
+        for block in products_blocks:
             
-            #фильтр по времени
-            if not filter_from_time(i):
+            # фильтрация по времени
+            if not filter_from_time(block):
                 continue
-            if not filter_price(i):
+            # фильтрация по цене
+            if not filter_price(block):
                 continue
             
-            datas = i.findAll('a', href=True)[0]["href"]
-            href = f"https://www.avito.ru{str(datas)}"
+            found_link = block.findAll('a', href=True)[0]["href"]
+            link:str = f"https://www.avito.ru{str(found_link)}"
             
+            # проверяет на индивидуальность
+            if check_write_links(link) == False:
+                continue
 
-            if write_log_links(href) == False:
-                continue
-
-            text = f"\nСсылка:  {href}\n"
+            text:str = f"\nСсылка:  {link}\n"
             
             time.sleep(random.randint(1, 5))
             send_message(text)
- 
-
-            
-
